@@ -1,0 +1,54 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@10;400;500;600;700;800&display=swap');
+
+@import "tailwindcss";
+
+
+@theme {
+  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+}
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Default (Light Mode) */
+body {
+  @apply bg-slate-50 text-slate-900 transition-colors duration-300;
+}
+
+/* --- DARK MODE OVERRIDES --- */
+.dark body {
+  @apply bg-slate-900 text-slate-100;
+}
+
+/* 1. Fix the main backgrounds */
+.dark .bg-white,
+.dark .bg-gray-50,
+.dark .bg-blue-50 {
+  @apply bg-slate-800! border-slate-700!;
+}
+
+/* 2. Fix invisible Headings and Labels */
+.dark .text-gray-900,
+.dark .text-gray-800,
+.dark .text-gray-700 {
+  @apply text-white!;
+}
+
+/* 3. Fix invisible secondary text */
+.dark .text-gray-600,
+.dark .text-gray-500 {
+  @apply text-gray-300!;
+}
+
+/* 4. Fix Borders and Table Dividers */
+.dark .border-gray-100,
+.dark .border-gray-200,
+.dark .border-gray-300,
+.dark .divide-gray-200 > * {
+  @apply border-slate-700!;
+}
+
+/* 5. Fix Inputs and Dropdowns */
+.dark input, 
+.dark select {
+  @apply bg-slate-900! text-white! border-slate-600!;
+}
