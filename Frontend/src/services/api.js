@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // This creates a base instance so we don't have to type localhost:5000 every time
-const API = axios.create({ baseURL: 'http://localhost:5000/api' });
+const API = axios.create({ baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api' });
 
 // ==========================================
 // THE INTERCEPTOR (For JWT Authentication)

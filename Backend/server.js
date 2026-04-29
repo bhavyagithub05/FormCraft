@@ -10,13 +10,14 @@ const authRoutes = require('./routes/authRoutes');
 const app = express();
 
 // Middleware
-app.use(cors()); // Allows your React frontend to make requests here
+app.use(cors({ origin: '*' })); // Allows your React frontend to make requests here
 app.use(express.json()); // Allows the server to understand JSON data
 
 //routes
 app.use('/api/auth', authRoutes);
 app.use('/api/forms', formRoutes);
 app.use('/api/responses', responseRoutes);
+
 // Database Connection
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('✅ Connected to MongoDB'))
