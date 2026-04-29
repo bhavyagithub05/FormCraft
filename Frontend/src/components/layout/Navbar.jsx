@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Layout, LogOut } from 'lucide-react'; // Added LogOut icon
 import ThemeBtn from './ThemeBtn'; 
 import { useAuth } from '../../context/AuthContext'; // Import Auth context
@@ -6,11 +6,16 @@ import { useAuth } from '../../context/AuthContext'; // Import Auth context
 const Navbar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
+  
+  if (location.pathname.startsWith('/form/')) {
+    return null;
+  }
 
   return (
     <nav className="bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 shadow-sm sticky top-0 z-50 transition-colors">
