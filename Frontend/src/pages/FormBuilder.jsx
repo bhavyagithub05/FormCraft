@@ -1,9 +1,12 @@
+import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import SortableField from '../components/builder/SortableField';
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getFormById, createForm, updateForm } from '../services/api';
 import { useFormBuilder } from '../context/FormContext';
-import { Type, List, CheckSquare, CircleDot, Trash2, Share2, Check } from 'lucide-react';
-import FieldPreview from '../components/builder/FieldPreview';
+import { Type, List, CheckSquare, CircleDot, Share2, Check, Mail, Upload, Calendar } from 'lucide-react';
+// import FieldPreview from '../components/builder/FieldPreview';
 import FieldProperties from '../components/builder/FieldProperties';
 
 const FormBuilder = () => {
@@ -16,6 +19,24 @@ const FormBuilder = () => {
   const [isSaving, setIsSaving] = useState(false);
 
   const [copied, setCopied] = useState(false);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 8 }, // 8px movement required to start drag
+    })
+  );
+
+  // 3. Handle the reordering logic
+  const handleDragEnd = (event) => {
+    const { active, over } = event;
+    if (active.id !== over.id) {
+      const oldIndex = formSchema.fields.findIndex((f) => f.id === active.id);
+      const newIndex = formSchema.fields.findIndex((f) => f.id === over.id);
+      
+      const newOrder = arrayMove(formSchema.fields, oldIndex, newIndex);
+      setFormSchema({ ...formSchema, fields: newOrder });
+    }
+  };
 
   const handleCopyLink = () => {
     // Generates the full URL based on whatever domain you are currently on
@@ -85,23 +106,27 @@ const FormBuilder = () => {
         <h2 className="font-bold text-lg text-gray-800 dark:text-white mb-6">Form Elements</h2>
         
         <div className="grid grid-cols-2 lg:grid-cols-1 gap-3">
-          <button 
-          onClick={() => addField('text')} 
-          className="flex items-center w-full p-3 bg-gray-50 dark:bg-slate-700/50 border border-gray-200 dark:border-slate-600 rounded-lg hover:bg-blue-50 dark:hover:bg-slate-700 hover:border-blue-300 dark:hover:border-blue-500 text-gray-700 dark:text-gray-200 transition-colors">
-            <Type className="w-5 h-5 mr-3 text-gray-500 dark:text-gray-400" /> Text Input
-          </button>
-          
-          <button onClick={() => addField('dropdown')} className="flex items-center w-full p-3 bg-gray-50 dark:bg-slate-700/50 border border-gray-200 dark:border-slate-600 rounded-lg hover:bg-blue-50 dark:hover:bg-slate-700 hover:border-blue-300 dark:hover:border-blue-500 text-gray-700 dark:text-gray-200 transition-colors">
-            <List className="w-5 h-5 mr-3 text-gray-500 dark:text-gray-400" /> Dropdown
-          </button>
-
-          <button onClick={() => addField('checkbox')} className="flex items-center w-full p-3 bg-gray-50 dark:bg-slate-700/50 border border-gray-200 dark:border-slate-600 rounded-lg hover:bg-blue-50 dark:hover:bg-slate-700 hover:border-blue-300 dark:hover:border-blue-500 text-gray-700 dark:text-gray-200 transition-colors">
-            <CheckSquare className="w-5 h-5 mr-3 text-gray-500 dark:text-gray-400" /> Checkbox
-          </button>
-          
-          <button onClick={() => addField('radio')} className="flex items-center w-full p-3 bg-gray-50 dark:bg-slate-700/50 border border-gray-200 dark:border-slate-600 rounded-lg hover:bg-blue-50 dark:hover:bg-slate-700 hover:border-blue-300 dark:hover:border-blue-500 text-gray-700 dark:text-gray-200 transition-colors">
-            <CircleDot className="w-5 h-5 mr-3 text-gray-500 dark:text-gray-400" /> Radio Button
-          </button>
+          {[
+            { type: 'text', label: 'Text Input', icon: Type },
+            { type: 'email', label: 'Email', icon: Mail },
+            { type: 'dropdown', label: 'Dropdown', icon: List },
+            { type: 'checkbox', label: 'Checkbox', icon: CheckSquare },
+            { type: 'radio', label: 'Radio Button', icon: CircleDot },
+            { type: 'file', label: 'Upload File', icon: Upload },
+            { type: 'date', label: 'Date', icon: Calendar },
+          ].map((item) => (
+            <button
+              key={item.type}
+              onClick={() => addField(item.type)}
+              className="flex items-center w-full p-3 border
+                bg-gray-50 border-gray-200 text-gray-700 hover:bg-blue-50 hover:border-blue-700 
+                dark:bg-slate-800/40 dark:border-slate-700 dark:text-gray-200 
+                dark:hover:bg-blue-600/20 dark:hover:border-blue-500/50 dark:hover:shadow-[0_0_15px_rgba(59,130,246,0.1)] rounded-lg transition-all duration-200 group hover:cursor-pointer"
+            >
+              <item.icon className="w-5 h-5 mr-3 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400" />
+              {item.label}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -140,29 +165,27 @@ const FormBuilder = () => {
                 Click an element from the sidebar to add it to your form.
               </div>
             ) : (
-              formSchema.fields.map((field) => (
-                <div 
-                key={field.id} 
-                onClick={() => setActiveFieldId(field.id)}
-                className={`p-4 lg:p-5 border rounded-xl relative group cursor-pointer transition-all duration-300 ${
-                  activeFieldId === field.id 
-                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-500/10 dark:border-blue-400/50 dark:shadow-[0_0_20px_rgba(59,130,246,0.15)]' 
-                    : 'border-transparent hover:border-gray-200 dark:hover:border-white/10 hover:bg-gray-50 dark:hover:bg-white/2'
-                }`}>
-                  <p className="font-semibold text-gray-700 dark:text-gray-200 mb-2">{field.label}</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 italic">[{field.type} field preview]</p>
-                  
-                  <FieldPreview field={field} />
-
-                  {/* Delete Button */}
-                  <button 
-                    onClick={() => removeField(field.id)}
-                    className="absolute top-3 right-3 text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    <Trash2 className="w-5 h-5" />
-                  </button>
-                </div>
-              ))
+              /* Wrap the list in DndContext and SortableContext */
+              <DndContext 
+                sensors={sensors} 
+                collisionDetection={closestCenter} 
+                onDragEnd={handleDragEnd}
+              >
+                <SortableContext 
+                  items={formSchema.fields.map(f => f.id)} 
+                  strategy={verticalListSortingStrategy}
+                >
+                  {formSchema.fields.map((field) => (
+                    <SortableField 
+                      key={field.id} 
+                      field={field} 
+                      activeFieldId={activeFieldId}
+                      setActiveFieldId={setActiveFieldId}
+                      removeField={removeField}
+                    />
+                  ))}
+                </SortableContext>
+              </DndContext>
             )}
           </div>
 

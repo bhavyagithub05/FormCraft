@@ -6,12 +6,16 @@ require('dotenv').config();
 const formRoutes = require('./routes/formRoutes');
 const responseRoutes = require('./routes/responseRoutes');
 const authRoutes = require('./routes/authRoutes');
-
+const path = require('path')
 const app = express();
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Middleware
 app.use(cors({ origin: '*' })); // Allows your React frontend to make requests here
 app.use(express.json()); // Allows the server to understand JSON data
+app.use(express.urlencoded({ extended: true }));
+
 
 //routes
 app.use('/api/auth', authRoutes);

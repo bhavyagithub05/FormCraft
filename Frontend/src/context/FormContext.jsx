@@ -23,8 +23,11 @@ export const FormProvider = ({ children }) => {
       id: `field_${Date.now()}`, // Generate a unique ID
       type: fieldType,
       label: `New ${fieldType} question`,
+      placeholder: fieldType === 'email' ? 'example@gmail.com' : '',
       required: false,
-      options: fieldType === 'dropdown' || fieldType === 'radio' ? ['Option 1'] : []
+
+      options: ['dropdown', 'radio', 'checkbox'].includes(fieldType) ? ['Option 1'] : [],
+      fileConfig: fieldType === 'file' ? { maxSize: 5, acceptedTypes: '.pdf,.jpg,.png' } : null
     };
     
     setFormSchema((prev) => ({

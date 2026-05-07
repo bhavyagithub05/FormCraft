@@ -64,7 +64,7 @@ router.put('/:id', authMiddleware, async (req, res) => {
     const updatedForm = await Form.findOneAndUpdate(
       { _id: req.params.id, userId: req.user.id },
       req.body,
-      { new: true } // Return the newly updated document
+      { returnDocument: 'after' } // Return the newly updated document
     );
     
     if (!updatedForm) return res.status(404).json({ error: 'Form not found or unauthorized' });

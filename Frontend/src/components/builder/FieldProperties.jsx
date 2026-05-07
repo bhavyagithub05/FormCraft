@@ -14,7 +14,18 @@ const FieldProperties = () => {
         <p>Click on a field in the canvas to edit its properties.</p>
       </div>
     );
+  }  
+
+
+  const handleFileConfigChange = (key, value) => {
+    updateField(activeField.id, {
+      fileConfig: {
+        ...(activeField.fileConfig || { maxSize: 5, acceptedTypes: '.pdf,.jpg,.png' }),
+        [key]: value
+      }
+    });
   }
+
 
   // Helper to update options arrays (for dropdowns/radios)
   const handleAddOption = () => {
@@ -65,8 +76,38 @@ const FieldProperties = () => {
         <label htmlFor="required" className="text-sm font-semibold text-gray-700 dark:text-gray-300">Required Field</label>
       </div>
 
+      {(activeField.type === 'file') && (
+        <div className="mb-6 pt-4 border-t border-gray-100 dark:border-white/5">
+          <label className="block text-xs font-bold uppercase text-blue-600 dark:text-blue-400 mb-4 tracking-wider">File Upload Settings</label>
+          
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Max Size (MB)</label>
+              <input 
+                type="number" 
+                value={activeField.fileConfig?.maxSize || 5}
+                onChange={(e) => handleFileConfigChange('maxSize', parseInt(e.target.value))}
+                className="w-full p-2 bg-transparent dark:bg-slate-950! border border-gray-300 dark:border-slate-700 text-gray-900 dark:text-white rounded text-sm focus:border-blue-500 outline-none"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Allowed Formats</label>
+              <input 
+                type="text" 
+                placeholder=".jpg, .png, .pdf"
+                value={activeField.fileConfig?.acceptedTypes || ''}
+                onChange={(e) => handleFileConfigChange('acceptedTypes', e.target.value)}
+                className="w-full p-2 bg-transparent dark:bg-slate-950! border border-gray-300 dark:border-slate-700 text-gray-900 dark:text-white rounded text-sm focus:border-blue-500 outline-none"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+
       {/* Options Editor (Only shows up for Dropdowns and Radios) */}
-      {(activeField.type === 'dropdown' || activeField.type === 'radio') && (
+      {(activeField.type === 'dropdown' || activeField.type === 'radio' || activeField.type === 'checkbox') && (
         <div className="mb-6">
           <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Options</label>
           <div className="space-y-2 mb-3">

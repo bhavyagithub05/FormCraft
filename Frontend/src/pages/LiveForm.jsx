@@ -44,14 +44,18 @@ const LiveForm = () => {
     setIsSubmitting(true);
     
     try {
-      // Format the payload exactly how our backend expects it
-      const payload = {
-        formId: formId,
-        answers: answers
-      };
+      // 1. Create a FormData instance
+      const formData = new FormData();
+      formData.append('formId', formId);
+      
+      // 2. Loop through answers and append them
+      // Note: If an answer is a file, it will be handled as binary; others as strings
+      Object.keys(answers).forEach(key => {
+        formData.append(key, answers[key]);
+      });
 
       // Send it to the database!
-      await submitResponse(payload);
+      await submitResponse(formData);
       setSubmitted(true); // Show the success message
     } catch (error) {
       console.error("Failed to submit:", error);
@@ -138,6 +142,76 @@ const LiveForm = () => {
                       <label className="ml-3 block text-gray-700">{opt}</label>
                     </div>
                   ))}
+                </div>
+              )}
+
+              {/* Render EMAIL inputs */}
+              {field.type === 'email' && (
+                <input
+                  type="email"
+                  required={field.required}
+                  onChange={(e) => handleChange(field.id, e.target.value)}
+                  className="mt-1 block w-full rounded-md border-gray-300 border p-3 focus:border-blue-500 focus:ring-blue-500"
+                  placeholder="email@example.com"
+                />
+              )}
+
+              {/* Render DATE inputs */}
+              {field.type === 'date' && (
+                <input
+                  type="date"
+                  required={field.required}
+                  onChange={(e) => handleChange(field.id, e.target.value)}
+                  className="mt-1 block w-full rounded-md border-gray-300 border p-3 focus:border-blue-500 focus:ring-blue-500"
+                />
+              )}
+
+              {/* Render file Inputs */}
+              {field.type === 'file' && (
+                <div className="mt-1 flex items-center justify-center w-full">
+                  {!answers[field.id] ? (
+                    // SHOW THIS: If no file is selected
+                    <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
+                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                        <p className="mb-2 text-sm text-gray-500 font-semibold">Click to upload file</p>
+                        <p className="text-xs text-gray-400">
+                          {field.fileConfig?.acceptedTypes || "Any file"} (Max: {field.fileConfig?.maxSize || 5}MB)
+                        </p>
+                      </div>
+                      <input 
+                        type="file" 
+                        className="hidden" 
+                        accept={field.fileConfig?.acceptedTypes}
+                        required={field.required}
+                        onChange={(e) => handleChange(field.id, e.target.files[0])} 
+                      />
+                    </label>
+                  ) : (
+                    // SHOW THIS: If a file has been selected
+                    <div className="flex items-center justify-between w-full p-4 border-2 border-blue-500 bg-blue-50 rounded-lg">
+                      <div className="flex items-center space-x-3 overflow-hidden">
+                        <div className="bg-blue-600 text-white p-2 rounded">
+                          {/* You can use a File icon here */}
+                          📄
+                        </div>
+                        <div className="truncate">
+                          <p className="text-sm font-medium text-gray-900 truncate">
+                            {answers[field.id].name}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {(answers[field.id].size / (1024 * 1024)).toFixed(2)} MB
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleChange(field.id, null)} // Clear the file
+                        className="text-red-500 hover:text-red-700 font-bold p-2"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
               
