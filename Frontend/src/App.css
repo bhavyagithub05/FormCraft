@@ -202,3 +202,14 @@
 .animation-delay-4000 {
   animation-delay: 4s;
 }
+
+
+@layer base {
+  body {
+    @apply select-none;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+}
